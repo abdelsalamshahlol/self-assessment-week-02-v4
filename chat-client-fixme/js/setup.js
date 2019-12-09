@@ -51,19 +51,20 @@ var userSelectedGroup = {};
 var newestDate = new Date();
 var userSelected;
 
+// Create HTML node for each message
 var processMessage = function(data, i) {
-      var timestamp = moment(data.results[i].createdAt).format('h:mm:ss a');
-      var $result = $('<li></li>').attr('data-username', data.results[i].username);
-      var $message = $('<p></p>').text(data.results[i].text);
-      var $userName = $('<a></a>').text(data.results[i].username).addClass('onlyUser');
-      var $likeUser = $('<a></a>').addClass('addUser').text(': ');
-      var $timeStamp = $('<span></span>').text(timestamp);
+  var timestamp = moment(data.results[i].createdAt).format('h:mm:ss a');
+  var $result = $('<li></li>').attr('data-username', data.results[i].username);
+  var $message = $('<p></p>').text(data.results[i].text);
+  var $userName = $('<a></a>').text(data.results[i].username).addClass('onlyUser');
+  var $likeUser = $('<a></a>').addClass('addUser').text(': ');
+  var $timeStamp = $('<span></span>').text(timestamp);
 
-      if (userSelectedGroup[data.results[i].username]) {
-        $message.addClass('highlight');
-      }
+  if (userSelectedGroup[data.results[i].username]) {
+    $message.addClass('highlight');
+  }
 
-     return $result.html([$userName, $timeStamp, $likeUser, $message]);
+ return $result.html([$userName, $timeStamp, $likeUser, $message]);
 }
 
 var displayData = function(data, user) {
@@ -71,7 +72,14 @@ var displayData = function(data, user) {
   var resultCount = 0;
 
   var i = 0;
-  // if (!arguments[2]) {
+  
+  // Prepend the messages and stop executing the rest
+  if (arguments[2]) {
+    if (user === data.results[0].username || !user) {
+      let $result = processMessage(data, 0);
+      $('#main').find('ul').prepend($result);
+    }
+  }else{
     while (resultCount < 10 && i < data.results.length) {
 
       newestDate = new Date(data.results[0].createdAt);
@@ -83,15 +91,10 @@ var displayData = function(data, user) {
       }
       i++;
     }
-  if (arguments[2]) {
-    if (user === data.results[0].username || !user) {
-      let $result = processMessage(data, 0);
-      $('#main').find('ul').prepend($result);
-      return;
-    }
+    $('#main').find('ul').html($results);
   }
 
-  $('#main').find('ul').html($results);
+
 
   $('.onlyUser').on('click', function() {
     if (userSelected !== $(this).closest('li').data('username')) {
