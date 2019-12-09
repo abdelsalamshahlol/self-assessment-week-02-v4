@@ -51,16 +51,7 @@ var userSelectedGroup = {};
 var newestDate = new Date();
 var userSelected;
 
-var displayData = function(data, user) {
-  var $results = [];
-  var resultCount = 0;
-
-  var i = 0;
-  while (resultCount < 10 && i < data.results.length) {
-
-    newestDate = new Date(data.results[0].createdAt);
-
-    if (user === data.results[i].username || !user) {
+var processMessage = function(data, i) {
       var timestamp = moment(data.results[i].createdAt).format('h:mm:ss a');
       var $result = $('<li></li>').attr('data-username', data.results[i].username);
       var $message = $('<p></p>').text(data.results[i].text);
@@ -72,11 +63,33 @@ var displayData = function(data, user) {
         $message.addClass('highlight');
       }
 
-      $result.html([$userName, $timeStamp, $likeUser, $message]);
+     return $result.html([$userName, $timeStamp, $likeUser, $message]);
+}
+
+var displayData = function(data, user) {
+  var $results = [];
+  var resultCount = 0;
+
+  var i = 0;
+  if (!arguments[2]) {
+    while (resultCount < 10 && i < data.results.length) {
+
+      newestDate = new Date(data.results[0].createdAt);
+
+      if (user === data.results[i].username || !user) {
+        let $result = processMessage(data, i);
+        $results.push($result);
+        resultCount++;
+      }
+      i++;
+    }
+  }else{
+    // alert(121)
+    if (user === data.results[0].username || !user) {
+      let $result = processMessage(data, 0);
       $results.push($result);
       resultCount++;
     }
-    i++;
   }
 
   $('#main').find('ul').html($results);
@@ -104,6 +117,11 @@ var displayData = function(data, user) {
   });
 };
 
+/* 
+  ======= A - 1 =======
+  This is the function responsible for sending messages to the server.
+  It uses Ajax request to send data via HTTP POST method.
+*/
 var postData = function(message, username) {
   $.ajax({
     url: SERVER_URL,
@@ -115,6 +133,15 @@ var postData = function(message, username) {
     }),
     success: function(data) {
       console.log('Success!', data);
+     
+      /*
+      ======= A - 2 =======
+      Update DOM 
+      */
+      data.username = username;
+      data.text = message;
+
+      displayData({results:[data]}, undefined, true);
     },
     error: function(data) {
       console.log(data);
