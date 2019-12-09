@@ -71,7 +71,7 @@ var displayData = function(data, user) {
   var resultCount = 0;
 
   var i = 0;
-  if (!arguments[2]) {
+  // if (!arguments[2]) {
     while (resultCount < 10 && i < data.results.length) {
 
       newestDate = new Date(data.results[0].createdAt);
@@ -83,12 +83,11 @@ var displayData = function(data, user) {
       }
       i++;
     }
-  }else{
-    // alert(121)
+  if (arguments[2]) {
     if (user === data.results[0].username || !user) {
       let $result = processMessage(data, 0);
-      $results.push($result);
-      resultCount++;
+      $('#main').find('ul').prepend($result);
+      return;
     }
   }
 
